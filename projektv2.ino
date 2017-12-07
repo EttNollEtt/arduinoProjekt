@@ -11,20 +11,34 @@
 
 // abandon all hope, ye who enter
 
+void backa()
+{
+  digitalWrite(in1, 0);
+  digitalWrite(in2, 255);
+  digitalWrite(in3, 0);
+  digitalWrite(in4, 255);
+}
+
 void systemFail()
 // ifall båda ir-sensorerna upptäcker färg
 // backar den i 1(en) sekund och stannar sedan
 // sedan börjar loopen om
 {
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-  delay(1000);
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
+  int savedOne;
+  int savedTwo;
+  backa();
+  delay(150);
+  savedOne = colorRead(irOne);
+  savedTwo = colorRead(irTwo);
+  while ((savedOne || savedTwo) != true)
+  {
+    backa();
+  }
+  delay(100);
+  digitalWrite(in1, 0);
+  digitalWrite(in2, 0);
+  digitalWrite(in3, 0);
+  digitalWrite(in4, 0);
 }
 
 long distanceRead(int x, int y)
@@ -101,7 +115,6 @@ int deltaDistance(int x, int y)
 // kollar om avståndet till den ena sensorn är större än det andra avståndet
 // isåfall och skillnaden är större än 15cm så svänger den
 {
-  Serial.print(x);
   if (((x > y)) && ((x - y) > 5))
   {
     motorControl(1);
