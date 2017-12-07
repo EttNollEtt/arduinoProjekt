@@ -71,7 +71,7 @@ int colorRead(int x)
   val = analogRead(x);
   delay(5);
   ny = analogRead(x);
-  if ((val - ny) > 50) // DEN SJUNDE DAGEN VILADE HAN: DEN SJÄTTE DAGEN SADE HAN; VAR E LJUSET FÖR FAN? OCH LJUSET KOM I SPRUTLUDRET
+  if ((val - ny) > 50) // DEN SJUNDE DAGEN VILADE HAN: DEN SJÄTTE DAGEN SADE HAN; VAR E LJUSET FÖR FAN? OCH LJUSET
   {
     return true;
   }
@@ -115,11 +115,11 @@ int deltaDistance(int x, int y)
 // kollar om avståndet till den ena sensorn är större än det andra avståndet
 // isåfall och skillnaden är större än 15cm så svänger den
 {
-  if (((x > y)) && ((x - y) > 5))
+  if (((x > y)) && ((x - y) > 5)) // ngnting om bibeln här också
   {
     motorControl(1);
   }
-  else if (((x < y)) && ((y - x) > 5))
+  else if (((x < y)) && ((y - x) > 5)) // här mä
   {
     motorControl(-1);
   }
