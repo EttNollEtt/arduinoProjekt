@@ -11,27 +11,21 @@
 
 // abandon all hope, ye who enter
 
-void backa()
-{
+void backa(){
   digitalWrite(in1, 0);
   digitalWrite(in2, 255);
   digitalWrite(in3, 0);
   digitalWrite(in4, 255);
 }
 
-void systemFail()
-// ifall båda ir-sensorerna upptäcker färg
-// backar den i 1(en) sekund och stannar sedan
-// sedan börjar loopen om
-{
+void systemFail(){
   int savedOne;
   int savedTwo;
   backa();
-  delay(150);
+  delay(100);
   savedOne = colorRead(irOne);
   savedTwo = colorRead(irTwo);
-  while ((savedOne || savedTwo) != true)
-  {
+  while ((savedOne && savedTwo) != true) {
     backa();
   }
   delay(100);
@@ -41,10 +35,7 @@ void systemFail()
   digitalWrite(in4, 0);
 }
 
-long distanceRead(int x, int y)
-// tar in en trigpin och en echopin
-// och räknar ut avståndet från sensorn i cm
-{
+long distanceRead(int x, int y){
   int var;
   int distance;
   digitalWrite(x, LOW);
@@ -54,56 +45,37 @@ long distanceRead(int x, int y)
   digitalWrite(x, LOW);
   var = pulseIn(y, HIGH);
   distance = (var * 0.034 / 2);
-  if (distance > 15)
-  {
+  if (distance > 15) {
     motorControl(0);
   }
   return distance;
 }
 
-int colorRead(int x)
-// tar in värden från en ir-sensor och
-// jämför det med värdet efter en kort delay
-// den kommer att reagera om skillnaden är för stor 
-{
+int colorRead(int x){
   int val;
   int ny;
   val = analogRead(x);
   delay(5);
   ny = analogRead(x);
-  if ((val - ny) > 50) // DEN SJUNDE DAGEN VILADE HAN: DEN SJÄTTE DAGEN SADE HAN; VAR E LJUSET FÖR FAN? OCH LJUSET
-  {
+  if ((val - ny) > 50){
     return true;
-  }
-  else
-  {
+  } else {
     return false;
   }
 }
 
-void motorControl(int x)
-// slutfunktionen som tar in 1, -1 eller 0
-// som hör ihop med sväng höger, vänster eller rakt fram
-// om irTwo ej upptäcker körs denna om allt annat stämmer
-{
-  if (x == 1)
-  {
+void motorControl(int x) {
+  if (x == 1) {
     analogWrite(in1, 255);
     analogWrite(in2, 0);
     analogWrite(in3, 0);
     analogWrite(in4, 255);
-  }
-  // om irOne ej upptäcker körs denna om allt annat stämmer
-  else if (x == -1)
-  {
+  } else if (x == -1) {
     analogWrite(in1, 0);
     analogWrite(in2, 255);
     analogWrite(in3, 255);
     analogWrite(in4, 0);
-  }
-  // om båda IR upptäcker mark körs denna om allt annat stämmer
-  else if (x == 0)
-  {
+  } else if (x == 0) {
     analogWrite(in1, 255);
     analogWrite(in2, 0);
     analogWrite(in3, 255);
@@ -111,26 +83,17 @@ void motorControl(int x)
   }
 }
 
-int deltaDistance(int x, int y)
-// kollar om avståndet till den ena sensorn är större än det andra avståndet
-// isåfall och skillnaden är större än 15cm så svänger den
-{
-  if (((x > y)) && ((x - y) > 5)) // ngnting om bibeln här också
-  {
+int deltaDistance(int x, int y) {
+  if (((x > y)) && ((x - y) > 5)) {
     motorControl(1);
-  }
-  else if (((x < y)) && ((y - x) > 5)) // här mä
-  {
+  } else if (((x < y)) && ((y - x) > 5)) {
     motorControl(-1);
-  }
-  else
-  {
+  } else {
     motorControl(0);
   }
 }
 
-void setup()
-{
+void setup(){
   Serial.begin(9600);
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
@@ -144,28 +107,17 @@ void setup()
   pinMode(irTwo, INPUT);
 }
 
-void loop()
-// kollar med ir-sensorerna först av allt
-// beroende på vad de känner av så kommer
-// en viss funktion med motorerna utföras
-{
+void loop(){
   delay(10);
   int distanceOne;
   int distanceTwo;
-  if (colorRead(irOne) == true && colorRead(irTwo) == true)
-  {
+  if (colorRead(irOne) == true && colorRead(irTwo) == true) {
     systemFail();
-  }
-  else if ((colorRead(irOne) &&! colorRead(irTwo) == true))
-  {
+  } else if ((colorRead(irOne) &&! colorRead(irTwo) == true)) {
     motorControl(1);
-  }
-  else if ((colorRead(irTwo) &&! colorRead(irOne) == true))
-  {
+  } else if ((colorRead(irTwo) &&! colorRead(irOne) == true)) {
     motorControl(-1);
-  }
-  else
-  {
+  } else {
     distanceOne = distanceRead(trigOne, echoOne);
     distanceTwo = distanceRead(trigTwo, echoTwo);
     deltaDistance(distanceOne, distanceTwo);
