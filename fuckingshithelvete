@@ -6,62 +6,11 @@
 #define irTwo 12
 #define in1 6
 #define in2 5
-#define in3 10
-#define in4 11
+#define in3 11
+#define in4 10
 
 // fixa funktioner för varje sväng och snurr och diverse
 // SÄNK PWM-VÄRDENA OM VI FIXAR 9-VOLT
-
-void setup()
-{
-  Serial.begin(9600);
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
-  pinMode(in3, OUTPUT);
-  pinMode(in4, OUTPUT);
-  pinMode(trigOne, OUTPUT);
-  pinMode(trigTwo, OUTPUT);
-  pinMode(echoOne, INPUT);
-  pinMode(echoTwo, INPUT);
-  pinMode(irOne, INPUT);
-  pinMode(irTwo, INPUT);
-}
-
-void loop()
-{
-  delay(50); // experimentella värden
-  int distanceOne;
-  int distanceTwo;
-  while ((colorRead(irOne) && (colorRead(irTwo))) == false)
-  {
-    distanceOne = distanceRead(trigOne, echoOne);
-    distanceTwo = distanceRead(trigTwo, echoTwo);
-    if (((distanceOne) && (distanceTwo)) > 30)  // experimentella
-    {
-    digitalWrite(in1, 0);
-    digitalWrite(in2, 180);
-    digitalWrite(in3, 180);
-    digitalWrite(in4, 0);
-    delay(100); // värdet på denna måste kalibreras
-    }
-    else
-    {
-    deltaDistance(distanceOne, distanceTwo);
-    }
-  }
-  if ((colorRead(irOne) && colorRead(irTwo)) == true)
-  {
-    systemFail();
-  }
-  else if ((colorRead(irOne) &&! colorRead(irTwo) == true))
-  {
-    motorControl(1);
-  }
-  else if ((colorRead(irTwo) &&! colorRead(irOne) == true))
-  {
-    motorControl(-1);
-  }
-}
 
 int colorRead(int x)
 {
@@ -87,16 +36,17 @@ void backa()
 
 void systemFail()
 {
+  Serial.print("systemFail");
   int valOne, valTwo;
   backa();
   delay(100);
   valOne = colorRead(irOne);
   valTwo = colorRead(irTwo);
-  while ((valOne && valTwo) != true)
+  if ((valOne && valTwo) == false)
   {
     backa();
   }
-  delay(100);
+  delay(1000);
   digitalWrite(in1, 0);
   digitalWrite(in2, 180);
   digitalWrite(in3, 180);
@@ -119,6 +69,7 @@ long distanceRead(int x, int y)
 
 void motorControl(int x)
 {
+  Serial.println(x);
   if (x == 1)
   {
     analogWrite(in1, 255);
@@ -142,18 +93,65 @@ void motorControl(int x)
   }
 }
 
-int deltaDistance(int val1, int val2)
+int deltaDistance(int x, int y)
 {
-  if (((val1 > val2)) && ((val1 - val2) > 10)) // experimentella värden
+  //Serial.println(x-y);
+  int val;
+  val = (x-y);
+  if ((val > 0) && (abs(val) > 10))
   {
     motorControl(1);
-  }
-  else if ((val1 < val2) && ((val1 - val2) > 10)) //exp värden
+  } 
+  else if ((val < 0) && (abs(val) > 10))
   {
     motorControl(-1);
   }
   else
   {
     motorControl(0);
+  }
+}
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  pinMode(trigOne, OUTPUT);
+  pinMode(trigTwo, OUTPUT);
+  pinMode(echoOne, INPUT);
+  pinMode(echoTwo, INPUT);
+  pinMode(irOne, INPUT);
+  pinMode(irTwo, INPUT);
+}
+
+void loop()
+{
+  delay(500); // experimentella värden
+  int distanceOne;
+  int distanceTwo;
+  int var1, var2;
+  distanceOne = distanceRead(trigOne, echoOne);
+  distanceTwo = distanceRead(trigTwo, echoTwo);
+  var1 = colorRead(irOne);
+  var2 = colorRead(irTwo);
+  Serial.print(var2);
+  if ((var1 && var2) == true)
+  {
+    deltaDistance(distanceOne, distanceTwo);
+  }
+  else if ((var2 &&! var1) == true)
+  {
+    motorControl(1);
+  }
+  else if((var1 &&! var2) == true)
+  {
+    motorControl(-1);
+  }
+  else if ((var1 && var2) == false)
+  {
+    systemFail();
   }
 }
