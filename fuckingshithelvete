@@ -36,7 +36,18 @@ void loop()
   {
     distanceOne = distanceRead(trigOne, echoOne);
     distanceTwo = distanceRead(trigTwo, echoTwo);
-    deltaDistance(distanceOne, distanceTwo);    
+    if ((distanceOne > 30) && (distanceTwo > 30))
+    {
+    digitalWrite(in1, 0);
+    digitalWrite(in2, 180);
+    digitalWrite(in3, 180);
+    digitalWrite(in4, 0);
+    delay(150);                                                 // värdet på denna
+    }
+    else
+    {
+    deltaDistance(distanceOne, distanceTwo);
+    }    
   }  
   if ((colorRead(irOne) && colorRead(irTwo)) == true) 
   {
@@ -76,7 +87,7 @@ void systemFail()
   digitalWrite(in2, 180);
   digitalWrite(in3, 180);
   digitalWrite(in4, 0);
-  delay(50);
+  delay(50); // bestäm värdet på denna
 }
 
 long distanceRead(int x, int y)
@@ -89,18 +100,6 @@ long distanceRead(int x, int y)
   digitalWrite(x, LOW);
   pulse = pulseIn(y, HIGH);
   distance = (pulse * 0.034 / 2);
-  if ((distance > 15) && (distance < 30))
-  {
-    motorControl(0);
-  }
-  else if (distance > 30)
-  {
-    digitalWrite(in1, 0);
-    digitalWrite(in2, 180);
-    digitalWrite(in3, 180);
-    digitalWrite(in4, 0);
-    delay(50);
-  }
   return distance;
 }
 
@@ -125,13 +124,6 @@ void motorControl(int x) {
     analogWrite(in2, 0);
     analogWrite(in3, 0);
     analogWrite(in4, 255);
-    while ((colorRead(irOne) &&! colorRead(irTwo) == true)) // fungerar detta?
-    {
-      analogWrite(in1, 255);
-      analogWrite(in2, 0);
-      analogWrite(in3, 0);
-      analogWrite(in4, 255);
-    }
   } 
   else if (x == -1) 
   {
@@ -139,13 +131,6 @@ void motorControl(int x) {
     analogWrite(in2, 255);
     analogWrite(in3, 255);
     analogWrite(in4, 0);
-    while ((colorRead(irTwo) &&! colorRead(irOne) == true)) // fungerar detta?
-    {
-      analogWrite(in1, 0);
-      analogWrite(in2, 255);
-      analogWrite(in3, 255);
-      analogWrite(in4, 0);     
-    }
   } 
   else if (x == 0) 
   {
@@ -153,23 +138,16 @@ void motorControl(int x) {
     analogWrite(in2, 0);
     analogWrite(in3, 255);
     analogWrite(in4, 0);
-    while ((colorRead(irOne) && (colorRead(irTwo))) == false) // fungerar detta?
-    {
-      analogWrite(in1, 255);
-      analogWrite(in2, 0);
-      analogWrite(in3, 255);
-      analogWrite(in4, 0);
-    }
   }
 }
 
 int deltaDistance(int x, int y) 
 {
-  if (((x > y)) && ((x - y) > 5)) // experimentella värden
+  if (((x > y)) && ((x - y) > 10)) // experimentella värden
   {
     motorControl(1);
   } 
-  else if ((x < y) && ((y - x) > 5)) 
+  else if ((x < y) && ((y - x) > 10)) 
   {
     motorControl(-1);
   } 
