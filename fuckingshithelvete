@@ -27,39 +27,53 @@ void setup()
   pinMode(irTwo, INPUT);
 }
 
-void loop() 
+void loop()
 {
-  delay(10);
+  delay(50); // experimentella värden
   int distanceOne;
-  int distanceTwo;  
-  while ((colorRead(irOne) && (colorRead(irTwo))) == false) 
+  int distanceTwo;
+  while ((colorRead(irOne) && (colorRead(irTwo))) == false)
   {
     distanceOne = distanceRead(trigOne, echoOne);
     distanceTwo = distanceRead(trigTwo, echoTwo);
-    if ((distanceOne > 30) && (distanceTwo > 30))
+    if (((distanceOne) && (distanceTwo)) > 30)  // experimentella
     {
     digitalWrite(in1, 0);
     digitalWrite(in2, 180);
     digitalWrite(in3, 180);
     digitalWrite(in4, 0);
-    delay(150);                                                 // värdet på denna
+    delay(100); // värdet på denna måste kalibreras
     }
     else
     {
     deltaDistance(distanceOne, distanceTwo);
-    }    
-  }  
-  if ((colorRead(irOne) && colorRead(irTwo)) == true) 
+    }
+  }
+  if ((colorRead(irOne) && colorRead(irTwo)) == true)
   {
     systemFail();
-  } 
-  else if ((colorRead(irOne) &&! colorRead(irTwo) == true)) 
+  }
+  else if ((colorRead(irOne) &&! colorRead(irTwo) == true))
   {
     motorControl(1);
-  } 
-  else if ((colorRead(irTwo) &&! colorRead(irOne) == true)) 
+  }
+  else if ((colorRead(irTwo) &&! colorRead(irOne) == true))
   {
     motorControl(-1);
+  }
+}
+
+int colorRead(int x)
+{
+  int val;
+  val = digitalRead(x);
+  if (val == 0)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
   }
 }
 
@@ -73,12 +87,12 @@ void backa()
 
 void systemFail()
 {
-  int valOne, valTwo = 0;
+  int valOne, valTwo;
   backa();
   delay(100);
   valOne = colorRead(irOne);
   valTwo = colorRead(irTwo);
-  while ((valOne && valTwo) != true) 
+  while ((valOne && valTwo) != true)
   {
     backa();
   }
@@ -92,7 +106,7 @@ void systemFail()
 
 long distanceRead(int x, int y)
 {
-  int pulse, distance;
+  long pulse, distance;
   digitalWrite(x, LOW);
   delayMicroseconds(2);
   digitalWrite(x, HIGH);
@@ -103,36 +117,23 @@ long distanceRead(int x, int y)
   return distance;
 }
 
-int colorRead(int x)
+void motorControl(int x)
 {
-  int val;
-  val = digitalRead(x);
-  if (val == 0)
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
-}
-
-void motorControl(int x) {
-  if (x == 1) 
+  if (x == 1)
   {
     analogWrite(in1, 255);
     analogWrite(in2, 0);
     analogWrite(in3, 0);
     analogWrite(in4, 255);
-  } 
-  else if (x == -1) 
+  }
+  else if (x == -1)
   {
     analogWrite(in1, 0);
     analogWrite(in2, 255);
     analogWrite(in3, 255);
     analogWrite(in4, 0);
-  } 
-  else if (x == 0) 
+  }
+  else if (x == 0)
   {
     analogWrite(in1, 255);
     analogWrite(in2, 0);
@@ -141,17 +142,17 @@ void motorControl(int x) {
   }
 }
 
-int deltaDistance(int x, int y) 
+int deltaDistance(int val1, int val2)
 {
-  if (((x > y)) && ((x - y) > 10)) // experimentella värden
+  if (((val1 > val2)) && ((val1 - val2) > 10)) // experimentella värden
   {
     motorControl(1);
-  } 
-  else if ((x < y) && ((y - x) > 10)) 
+  }
+  else if ((val1 < val2) && ((val1 - val2) > 10)) //exp värden
   {
     motorControl(-1);
-  } 
-  else 
+  }
+  else
   {
     motorControl(0);
   }
